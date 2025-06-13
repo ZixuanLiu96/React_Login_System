@@ -2,7 +2,7 @@ import { Button } from "antd";
 
 function Home() {
   return (
-    <div>
+    <div className="home">
       我是home组件
       <Button type="primary">Primary Button</Button>
     </div>
