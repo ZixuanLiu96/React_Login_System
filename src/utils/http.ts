@@ -4,6 +4,7 @@ import axios, {
   AxiosResponse,
 } from "axios";
 import { message } from "antd";
+import { store } from "../../src/store";
 
 // axios实例类型
 const http: AxiosInstance = axios.create({
@@ -12,9 +13,18 @@ const http: AxiosInstance = axios.create({
 });
 
 // 请求拦截器:发请求的时候需要做一些统一的处理
+// 因为每一次刷新都会带上token，所以可以把token放在请求拦截器当中
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   // console.log("config", config);
   // 在请求拦截器中加上token，因为之后每次发送请求都要用token
+  // 从redux中拿到token数据
+  const { token } = store.getState().authSlice;
+
+  // 并不是所有页面都需要携带token，所以可以做个判断，判断是否有token
+  if (token) {
+    // Authorization专门用来携带认证信息，Bearer表示的是一种认证类型，表示后面携带的是一个令牌
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
 
   return config; //必须要返回发送的请求
 });

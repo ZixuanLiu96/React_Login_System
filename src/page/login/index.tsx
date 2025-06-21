@@ -4,19 +4,36 @@ import bg from "../../assets/bg.jpg";
 import lgbg from "../../assets/lgbg.jpg";
 import { Button, Form, Input } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import { useEffect } from "react";
 import { login } from "../../api/users";
+import { setToken } from "../../store/login/authSlice";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function Login() {
   const [form] = Form.useForm();
-
+  const [loading, setLoading] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   function handleLogin() {
     form
       .validateFields()
-      .then((result) => {
-        console.log(result);
+      .then(async (result) => {
+        // 一发送请求说明点击了按钮，就开始loading
+        setLoading(true);
+        // 解构data，拿到token
+        const {
+          data: { token },
+        } = await login(result);
+        // console.log("result", data);
+        // 成功拿到数据之后是，就不再loading了，并能跳转页面
+        setLoading(false);
+        dispatch(setToken(token));
+        navigate("/", { replace: true }); // 点击返回时的历史页面被替代，所以不能返回
       })
       .catch((error) => {
+        // 数据出错了，也不再loading了
+        setLoading(false);
         console.log(error);
       });
   }
@@ -38,10 +55,10 @@ function Login() {
   //     });
   // }, []);
 
-  // 优化之后，使用封装好的login函数请求数据
-  useEffect(() => {
-    login({ username: "123", password: "123" });
-  });
+  // 优化之后，在组件挂载和更新的时候使用封装好的login函数请求数据（用来测试是否能成功拿到数据）
+  // useEffect(() => {
+  //   login({ username: "123 ", password: " 123" });
+  // });
 
   return (
     <div className="login" style={{ backgroundImage: `url(${bg})` }}>
@@ -86,6 +103,7 @@ function Login() {
                 htmlType="submit"
                 style={{ width: "100%" }}
                 onClick={handleLogin}
+                loading={loading}
               >
                 登录
               </Button>

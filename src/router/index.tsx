@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import React from "react";
+import RequireAuth from "../utils/RequireAuth";
 
 const Home = React.lazy(() => import("../page/home"));
 const Login = React.lazy(() => import("../page/login"));
@@ -8,11 +9,19 @@ const NotFound = React.lazy(() => import("../page/notfound"));
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: (
+      <RequireAuth allowed={true} redirectTo="/login">
+        <Home />
+      </RequireAuth>
+    ),
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <RequireAuth allowed={false} redirectTo="/">
+        <Login />
+      </RequireAuth>
+    ),
   },
   {
     path: "*",
